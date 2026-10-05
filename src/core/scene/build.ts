@@ -78,6 +78,8 @@ export function buildScene(scene: SceneFile, inputs: SceneInputs): ScenePayload 
 
   const names = variantNames(scene)
   const variants: Record<string, PlacedBlock[]> = Object.fromEntries(names.map((n) => [n, []]))
+  // A label sits just above the plot's plants: one block of crop, or two.
+  const [LABEL_SHORT, LABEL_TALL] = [2.2, 3.2]
   const labels: Array<{ text: string; pos: Vec3 }> = []
   /** Planted cells → the ground under them. */
   const cells = new Map<string, string | undefined>()
@@ -99,12 +101,13 @@ export function buildScene(scene: SceneFile, inputs: SceneInputs): ScenePayload 
         }
       }
       plant(x0, z0, ground)
-      labels.push({ text: label, pos: [x0 + 0.5, 3.2, z0 + 0.5] })
+      labels.push({ text: label, pos: [x0 + 0.5, props.half === "lower" ? LABEL_TALL : LABEL_SHORT, z0 + 0.5] })
       continue
     }
     const perVariant: Record<string, string> = typeof plot.stages === "string" ? Object.fromEntries(names.map((n) => [n, plot.stages as string])) : { ...plot.stages }
     const parent = `texturescript:block/${plot.model ?? "crop"}`
     let width = 1
+    let tall = false
     for (const [variant, source] of Object.entries(perVariant)) {
       const set = inputs.stages(source)
       if (!set) {
@@ -120,6 +123,7 @@ export function buildScene(scene: SceneFile, inputs: SceneInputs): ScenePayload 
         for (const [y, half] of [[1, "lower"], [2, "upper"]] as const) {
           const image = halves?.[half]
           if (!image) continue
+          if (half === "upper") tall = true
           const key = `p${i}_${variant}_${age}_${half}`.toLowerCase().replace(/[^a-z0-9_]/g, "_")
           const [tex, mid, bid] = [`texturescript:${key}`, `texturescript:block/${key}`, `texturescript:${key}`]
           textures.set(tex, image)
@@ -129,7 +133,7 @@ export function buildScene(scene: SceneFile, inputs: SceneInputs): ScenePayload 
         }
       })
     }
-    labels.push({ text: label, pos: [x0 + width / 2, 3.2, z0 + 0.5] })
+    labels.push({ text: label, pos: [x0 + width / 2, tall ? LABEL_TALL : LABEL_SHORT, z0 + 0.5] })
   }
 
   // Shift to non-negative coordinates, pad for the floor, and lay floor and ground.

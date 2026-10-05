@@ -77,6 +77,7 @@ describe("loadScene", () => {
     ])
     expect(blocks.filter((b) => b.pos[1] === 0 && b.props.moisture === "7")).toHaveLength(3) // under each planted cell
     expect(payload.missing).toEqual(["minecraft:missing_plant"])
+    expect(payload.labels.map((l) => l.pos[1])).toEqual([3.2, 2.2]) // just above two blocks of corn, one of plant
     expect(Object.keys(payload.atlas.uv)).toContain("minecraft:block/test_soil_wet")
     expect(payload.jar).toBe("fixture.jar")
     expect(watch.map((w) => w.path)).toContain(join(dir, "mature"))
