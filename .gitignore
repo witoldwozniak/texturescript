@@ -1,0 +1,6 @@
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Renders, screenshots and anything read from the game jar stay local.
+out/
