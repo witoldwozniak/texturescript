@@ -1,0 +1,22 @@
+{
+ "_comment": "The Python prototype's `stages` output for radish: pixel hashes of PNGs, full text of grids and ASCII, and its console log.",
+ "files": {
+  "stage0/lower.grid": "palette\n. transparent\na #266325\nb #347a2a\nc #43922d\nd #55ab2d\ne #5e263d\nf #8a4c5e\ng #b77581\nh #e6a0a6\ngrid\n................\n................\n................\n................\n................\n................\n................\n................\n................\n................\n................\n................\n................\n................\n..d....d.....d..\n..b....bc....b..\n",
+  "stage0/lower.png": "pixels:49bc9ac1bf8b29cd",
+  "stage0/lower.txt": "................\n................\n................\n................\n................\n................\n................\n................\n................\n................\n................\n................\n................\n................\n..d....d.....d..\n..b....bc....b..\n",
+  "stage0/lower_x16.png": "pixels:c991e3cd01641195",
+  "stage1/lower.grid": "palette\n. transparent\na #266325\nb #347a2a\nc #43922d\nd #55ab2d\ne #5e263d\nf #8a4c5e\ng #b77581\nh #e6a0a6\ngrid\n................\n................\n................\n................\n................\n................\n................\n................\n................\n................\n................\n.bcdb..bcb..cbd.\n..bc...bc....bc.\n.ddb..dddb..ddb.\n.ddc..ddcb..ddc.\n..b....bc....b..\n",
+  "stage1/lower.png": "pixels:67c9210f0df97698",
+  "stage1/lower.txt": "................\n................\n................\n................\n................\n................\n................\n................\n................\n................\n................\n.bcdb..bcb..cbd.\n..bc...bc....bc.\n.ddb..dddb..ddb.\n.ddc..ddcb..ddc.\n..b....bc....b..\n",
+  "stage1/lower_x16.png": "pixels:c4239f7d77d8eb95",
+  "stage2/lower.grid": "palette\n. transparent\na #266325\nb #347a2a\nc #43922d\nd #55ab2d\ne #5e263d\nf #8a4c5e\ng #b77581\nh #e6a0a6\ngrid\n................\n................\n................\n................\n................\n................\n................\n.bcab..bab..bcba\n..abc.dcab.dcbb.\n.cbab..aba..abcb\n..baa.cbab...bab\n.abca..aba..bac.\n..ab...ab....ab.\n.dca..dcda..dca.\n.dcb..dcba..dcb.\n..a....ab....a..\n",
+  "stage2/lower.png": "pixels:b0f556c30282156d",
+  "stage2/lower.txt": "................\n................\n................\n................\n................\n................\n................\n.bcab..bab..bcba\n..abc.dcab.dcbb.\n.cbab..aba..abcb\n..baa.cbab...bab\n.abca..aba..bac.\n..ab...ab....ab.\n.dca..dcda..dca.\n.dcb..dcba..dcb.\n..a....ab....a..\n",
+  "stage2/lower_x16.png": "pixels:edf7e2832f878195",
+  "stage3/lower.grid": "palette\n. transparent\na #266325\nb #347a2a\nc #43922d\nd #55ab2d\ne #5e263d\nf #8a4c5e\ng #b77581\nh #e6a0a6\ngrid\n................\n.......d........\n......dc.d......\n..d...bcdc......\n.dcd...cbc...d..\n..cbd.dbcba.dcb.\ndbbc..acbc...ccd\n.bcab..bab..bcba\n..abc.dcab.dcbb.\n.cbab..aba..abcb\n..baa.cbab...bab\n.abca..aba..bac.\n..ab...ab....ab.\n.hge..hghe..hge.\n.hgf..hgfe..hgf.\n..e....ef....e..\n",
+  "stage3/lower.png": "pixels:74915a248dca2fba",
+  "stage3/lower.txt": "................\n.......d........\n......dc.d......\n..d...bcdc......\n.dcd...cbc...d..\n..cbd.dbcba.dcb.\ndbbc..acbc...ccd\n.bcab..bab..bcba\n..abc.dcab.dcbb.\n.cbab..aba..abcb\n..baa.cbab...bab\n.abca..aba..bac.\n..ab...ab....ab.\n.hge..hghe..hge.\n.hgf..hgfe..hgf.\n..e....ef....e..\n",
+  "stage3/lower_x16.png": "pixels:2dee708435b2f395"
+ },
+ "log": "stage0 lower: pass\nstage1 lower: pass\nstage2 lower: pass\nstage3 lower: pass\nstrip: OUT/strip.png\n"
+}
