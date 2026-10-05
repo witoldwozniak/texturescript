@@ -5,6 +5,9 @@
   "description": "Author Minecraft textures as text and judge them in 3D without launching the game",
   "license": "Apache-2.0",
   "type": "module",
+  "bin": {
+    "texturescript": "src/cli/main.ts"
+  },
   "scripts": {
     "typecheck": "tsc --noEmit"
   },
