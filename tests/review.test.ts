@@ -8,8 +8,9 @@ import { contactSheet } from "../src/core/sheet.ts"
 import { tempDir, texture } from "./helpers.ts"
 
 const root = join(import.meta.dir, "..")
-const cli = (...args: string[]) => {
-  const r = Bun.spawnSync(["bun", join(root, "src/cli/main.ts"), ...args], { cwd: root })
+const cli = (...args: string[]) => cliIn(root, ...args)
+const cliIn = (cwd: string, ...args: string[]) => {
+  const r = Bun.spawnSync(["bun", join(root, "src/cli/main.ts"), ...args], { cwd })
   return { code: r.exitCode, out: r.stdout.toString(), err: r.stderr.toString() }
 }
 const hasChromium = existsSync(chromium.executablePath())
@@ -55,5 +56,18 @@ describe.skipIf(!hasChromium)("shoot", () => {
     expect(result.files).toEqual([out])
     const sheet = decodePng(readFileSync(out))
     expect([sheet.width, sheet.height]).toEqual([4 * (320 + 12), 2 * (180 + 16 + 12)])
+  })
+
+  test("works when started outside the package, with relative paths", () => {
+    const dir = join(tempDir(), "deep/er")
+    mkdirSync(dir, { recursive: true })
+    writeFileSync(join(dir, "t.png"), encodePng(texture(1)))
+    writeFileSync(join(dir, "scene.toml"), `[[plot]]\nstages = { a = "out" }\n`)
+    mkdirSync(join(dir, "out/stage0"), { recursive: true })
+    writeFileSync(join(dir, "out/stage0/lower.png"), encodePng(texture(1)))
+    const r = cliIn(dir, "shoot", "scene.toml", "shot.png", "--size", "160x90", "--no-jar")
+    expect(r.err).toBe("")
+    expect(r.code).toBe(0)
+    expect(existsSync(join(dir, "shot.png"))).toBe(true)
   })
 })

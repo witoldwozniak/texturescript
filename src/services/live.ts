@@ -1,9 +1,12 @@
 // The live server: serves the viewer, pushes the scene, and rebuilds when inputs change.
 import { Effect, Queue } from "effect"
-import { watch as watchFs, type FSWatcher } from "node:fs"
+import { existsSync, watch as watchFs, type FSWatcher } from "node:fs"
+import { join } from "node:path"
 import type { ServerMessage } from "../core/scene/payload.ts"
 import viewer from "../viewer/index.html"
 import { loadScene, type LoadedScene } from "./scene.ts"
+
+const viewerDir = join(import.meta.dir, "../viewer")
 
 export interface LiveOptions {
   readonly port: number
@@ -61,6 +64,15 @@ export const serveScene = Effect.fn("serveScene")(function* (sceneFile: string, 
     }).pipe(Effect.orDie),
     (s) => Effect.sync(() => s.stop(true)),
   )
+
+  // Bun bundles the viewer on its first request and names the chunks relative to the
+  // working directory, so started elsewhere their URLs 404. Bundle it now, from its own
+  // folder. A compiled binary has the bundle built in, and no such folder.
+  if (existsSync(viewerDir)) {
+    const cwd = process.cwd()
+    process.chdir(viewerDir)
+    yield* Effect.promise(() => fetch(server.url).then((r) => r.arrayBuffer())).pipe(Effect.ensuring(Effect.sync(() => process.chdir(cwd))))
+  }
 
   // Watchers subscribe synchronously, so a save right after start-up is not missed.
   // Any change in a watched folder: let the burst of writes settle, rebuild, push.
