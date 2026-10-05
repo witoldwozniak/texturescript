@@ -27,3 +27,12 @@ describe("texturescript grid", () => {
     expect(r.err.trim()).toBe(`REFUSED ${bad}:4:2: character "x" is not in the palette`)
   })
 })
+
+describe("texturescript palette", () => {
+  test("prints the section and, with --json, the shades", () => {
+    const r = cli("palette", "skill/palettes/corn.palette", "--json")
+    expect(r.code).toBe(0)
+    const { materials } = JSON.parse(r.out)
+    expect(materials[0]).toMatchObject({ name: "leaf", keys: "abcd", hexes: ["#266325", "#347a2a", "#43922d", "#55ab2d"] })
+  })
+})

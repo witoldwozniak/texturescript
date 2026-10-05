@@ -1,0 +1,4 @@
+material leaf    dark #266325  light #55ab2d  shades 4  keys abcd
+material kernel  dark #7a5012  light #f2d158  shades 4  keys eEFG
+material tassel  dark #7c7a30  light #d9cf78  shades 3  keys tTU
+transparent .

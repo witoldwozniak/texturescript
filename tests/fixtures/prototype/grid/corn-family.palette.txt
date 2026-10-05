@@ -1,0 +1,19 @@
+palette
+. transparent
+# leaf: 4 shades #266325 -> #55ab2d
+# leaf: dark L44 C11 h143, light L66 C18 h138; vanilla foliage: dark L31-57, light L45-79, chroma <= 24
+a #266325
+b #347a2a
+c #43922d
+d #55ab2d
+# kernel: 4 shades #7a5012 -> #f2d158
+# kernel: dark L47 C9 h71, light L87 C14 h94; vanilla produce: dark L21-77, light L41-93, chroma <= 19
+e #7a5012
+E #a37827
+F #cca33e
+G #f2d158
+# tassel: 3 shades #7c7a30 -> #d9cf78
+# tassel: dark L57 C10 h108, light L84 C11 h103; vanilla produce: dark L21-77, light L41-93, chroma <= 19
+t #7c7a30
+T #a9a454
+U #d9cf78

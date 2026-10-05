@@ -1,0 +1,14 @@
+palette
+. transparent
+# leaf: 4 shades #266325 -> #55ab2d
+# leaf: dark L44 C11 h143, light L66 C18 h138; vanilla foliage: dark L31-57, light L45-79, chroma <= 24
+a #266325
+b #347a2a
+c #43922d
+d #55ab2d
+# root: 4 shades #5e263d -> #e6a0a6
+# root: dark L36 C9 h357, light L77 C8 h14; vanilla produce: dark L21-77, light L41-93, chroma <= 19
+e #5e263d
+f #8a4c5e
+g #b77581
+h #e6a0a6
