@@ -50,7 +50,8 @@ directory; pass that directory to `fetch --skill`.
 ## Palette
 
 A `.palette` file has one `material NAME dark #hex light #hex shades N keys CHARS` line per
-material, darkest key first. You choose the two anchors and the shade count; the tool
+material, darkest key first, and a `transparent .` line naming the key for empty pixels.
+You choose the two anchors and the shade count; the tool
 refuses anchors closer than 15 OKLab lightness units. Never type an interior shade: you
 cannot tell adjacent shades apart by eye, and the interpolation matches vanilla ramps
 within what the eye can see. For items that need an outline darker than the plant uses,
@@ -72,14 +73,23 @@ grid
 ................   (16 rows of exactly 16 characters)
 ```
 
-Rows 0 to 15 top to bottom, columns 0 to 15 left to right. Count characters; a wrong row
-width is the most common refusal.
+The palette section is the output of `palette`, pasted as is; `grid` follows it. Rows 0
+to 15 top to bottom, columns 0 to 15 left to right. Count characters; a wrong row width
+is the most common refusal. `grid` counts the transparent key among its palette entries;
+`lint` counts only colours.
+
+Tools that name pixels print them as `(column,row)`, like `(13,6)`: x first, from the top
+left. `lint` lists the pixels behind a measurement even when the rule passes; only WARN
+and FAIL lines ask for attention.
 
 ## Scenes
 
 A crop is judged on the block model, beside vanilla. Write a scene file next to the
 `.stages` file; `view` and `shoot` compile the stages in memory, so there is no need to run
-`stages` first:
+`stages` first. That shows the generated stages only: once you hand-edit stage grids (see
+`--keep` below), point the plot at the output folder instead, or the scene keeps showing
+the unedited version. A variant for each (`{ generated = "x.stages", edited = "out" }`)
+shows both.
 
 ```toml
 camera = { yaw = 30, pitch = 22, distance = 7 }
@@ -98,11 +108,17 @@ block = "minecraft:wheat[age=7]"  # read from the user's jar
 at = [4, 0]
 ```
 
+`at = [x, z]` places a plot's first block; each age takes the next block along +x, so
+`ages = [0, 1, 2, 3]` at `[0, 0]` fills x 0 to 3. Leave one empty block between plots,
+along both x and z: neighbours that touch merge into one bed, and their labels overlap.
+
 `model = "cross"` plants on two diagonal planes (flowers, saplings) instead of the four
 crop planes. Variants (`stages = { first = "a.stages", second = "b.stages" }`) are drafts to
 compare: keys 1 to 9 switch between them in `view`, and `shoot` puts each in its own row.
 `shoot` with no `--cam` uses the scene's camera; add two or three angles, for example
-`--cam 30,22,7 --cam 120,10,5 --cam 0,60,6`, since one angle hides overlaps. The view
+`--cam 30,22,7 --cam 120,10,5 --cam 0,60,6`, since one angle hides overlaps. Those frame
+the whole scene; to judge one plant, move in (distance 3 to 5) and enlarge the shots with
+`--size 900x600`. The view
 renders the game's directional face shading and cutout, without biome tint or smooth
 lighting. Check the final art in game.
 
@@ -163,18 +179,31 @@ leaf, unripe fruit), add `recolour N from to` instead of hand-editing: up to sta
 pixels, renders every stage, lints each half with the seam check, and writes `strip.png`.
 Example: `examples/crop/corn.stages` in this skill (corn's whole growth design, 40 lines).
 
-Use a fresh output directory when removing halves or reducing the stage count: the tool
-refuses stale outputs and leaves existing files intact. Stage counts are 1 to 10. Every
+Re-running into the same output directory after editing the palette, the mature grids or
+the maps is normal; it overwrites the generated stages. Use a fresh directory when
+removing halves or reducing the stage count: the tool refuses stale outputs and leaves
+existing files intact. Stage counts are 1 to 10. Every
 lower stage must have pixels; an absent upper half is normal. Shift and recolour errors are
 refused before writing. Lint failures leave rendered outputs for inspection.
 
 Where a stage needs a pixel to move rather than appear, edit that stage's grid after
 generation and re-run with `--keep`, which re-renders your edited grids instead of
-overwriting them; point the scene's `stages` at the output folder to see them. Expect this
+overwriting them; point the scene's `stages` at the output folder to see them. A kept
+grid is rendered exactly as drawn: shifts and recolours are not applied to it again. Keep
+the generated grid's palette section and draw with its keys, choosing the shades the stage
+should show. Expect this
 for every crop whose fruit sits under the leaves (root crops): recolour handles the colour
 change, but maps cannot move pixels, so young stages need a neck drawn down to the soil
 line by hand. A shift that collapses a ramp into one shade is reported; use +1 on
 four-shade ramps. A single-block crop gives `grid lower` only.
+
+A root crop (beetroots, carrots, potatoes, a radish), four stages, has worked like this:
+label the leaves stage by stage as usual, and label one root column per plant `0`, so the
+sprouts reach the soil row from the start. Add `recolour 2 r a` and so on for every root
+key, so the root reads as leaf until stage 3. Shift `+2 +1`. Generate, then look at stages 0
+and 1: the root column makes a tall stick, not a sprout. Redraw those two by hand as low
+sprouts on rows 12 to 15 and re-run with `--keep`. Aim for coverage near beetroots'
+6, 12, 34, 45%.
 
 ## What not to do
 
