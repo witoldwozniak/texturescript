@@ -1,0 +1,18 @@
+mismatch 121/256  (missing 114, extra 0, wrong colour 7)
+................
+.......X........
+......XX.X......
+..X...XXXX......
+.XXX...XXX...X..
+..XXX.XXXXX.XXX.
+XXXX..XXXX...XXX
+.XXXX..XXX..XXXX
+..XXX.XXXX.XXXX.
+.XXXX..XXX..XXXX
+..XXX.XXXX...XXX
+.XXXX..XXX..XXX.
+..XX...XX....XX.
+.XXX..XXXX..XXX.
+.XXX..XXXX..XXX.
+..X....XX....X..
+sheet: SHEET  (rendered | target | wrong pixels in red)

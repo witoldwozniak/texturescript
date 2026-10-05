@@ -11,10 +11,11 @@ import { lintCommand } from "./lint.ts"
 import { paletteCommand } from "./palette.ts"
 import { stagesCommand } from "./stages.ts"
 import { viewCommand } from "./view.ts"
+import { diffCommand } from "./diff.ts"
 
 export const root = Command.make("texturescript").pipe(
   Command.withDescription("Author Minecraft textures as text and judge them in 3D."),
-  Command.withSubcommands([paletteCommand, gridCommand, stagesCommand, lintCommand, viewCommand, jarCommand]),
+  Command.withSubcommands([paletteCommand, gridCommand, stagesCommand, lintCommand, viewCommand, diffCommand, jarCommand]),
 )
 
 const services = Layer.mergeAll(Jar.layer, Png.layer).pipe(Layer.provideMerge(BunServices.layer))
