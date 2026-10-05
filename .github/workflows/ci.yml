@@ -13,5 +13,7 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: bun run typecheck
+      # Headless Chromium for the screenshot and contact-sheet tests.
+      - run: bunx playwright-core install --with-deps chromium
       # CI has no Minecraft jar, so tests use fake jars and the vanilla check is local only.
       - run: bun test
