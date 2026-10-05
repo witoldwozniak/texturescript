@@ -1,0 +1,3 @@
+#!/bin/sh
+# Refuse Minecraft game files. Enabled by `bun install` (core.hooksPath=.githooks).
+exec bun scripts/check-no-vanilla.ts --staged

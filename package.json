@@ -9,7 +9,9 @@
     "texturescript": "src/cli/main.ts"
   },
   "scripts": {
-    "typecheck": "tsc --noEmit"
+    "prepare": "git config core.hooksPath .githooks || true",
+    "typecheck": "tsc --noEmit",
+    "check-no-vanilla": "bun scripts/check-no-vanilla.ts"
   },
   "dependencies": {
     "@effect/platform-bun": "4.0.1",
