@@ -11,7 +11,8 @@
   "scripts": {
     "prepare": "git config core.hooksPath .githooks || true",
     "typecheck": "tsc --noEmit",
-    "check-no-vanilla": "bun scripts/check-no-vanilla.ts"
+    "check-no-vanilla": "bun scripts/check-no-vanilla.ts",
+    "build": "bun scripts/build.ts"
   },
   "dependencies": {
     "@effect/platform-bun": "4.0.1",
