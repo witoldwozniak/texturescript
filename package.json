@@ -1,6 +1,6 @@
 {
   "name": "texturescript",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "description": "Author Minecraft textures as text and judge them in 3D without launching the game",
   "license": "Apache-2.0",
