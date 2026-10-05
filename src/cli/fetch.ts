@@ -1,5 +1,7 @@
 import { Console, Effect, FileSystem, Option, Path } from "effect"
 import { Command, Flag } from "effect/cli"
+import { existsSync } from "node:fs"
+import { resolve } from "node:path"
 import { decodePng } from "../core/png.ts"
 import * as R from "../core/raster.ts"
 import { specError } from "../core/spec-error.ts"
@@ -11,11 +13,14 @@ import { printJson, refuseSpecErrors } from "./report.ts"
 
 const KIND_DIR: Record<ExampleKind, string> = { crop: "block", item: "item" }
 
-/** The skill folder in a source checkout, else ./texturescript-skill. */
-export const defaultSkillDir = () => {
-  const inRepo = `${import.meta.dir}/../../skill`
-  return Bun.file(`${inRepo}/SKILL.md`).size > 0 || Bun.file(`${inRepo}/examples/manifest.txt`).size > 0 ? inRepo : "texturescript-skill"
+/** The skill folder of a source checkout; a compiled binary has none on disk. */
+export const inRepoSkill = (): string | undefined => {
+  const dir = resolve(import.meta.dir, "../../skill")
+  return existsSync(`${dir}/SKILL.md`) ? dir : undefined
 }
+
+/** Where fetch writes without --skill: the checkout's skill, else ./texturescript-skill. */
+export const defaultSkillDir = () => inRepoSkill() ?? "texturescript-skill"
 
 const git = (cwd: string, args: string[], stdin?: string) => {
   const r = Bun.spawnSync(["git", ...args], { cwd, stdin: stdin === undefined ? "ignore" : new TextEncoder().encode(stdin), stdout: "pipe", stderr: "pipe" })
