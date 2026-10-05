@@ -1,0 +1,16 @@
+................
+.......d........
+......dc.d......
+..d...bcdc......
+.dcd...cbc...d..
+..cbd.dbcba.dcb.
+dbbc..acbc...ccd
+.bcab..bab..bcba
+..abc.dcab.dcbb.
+.cbab..aba..abcb
+..baa.cbab...bab
+.abca..aba..bac.
+..ab...ab....ab.
+.hge..hghe..hge.
+.hgf..hgfe..hgf.
+..e....ef....e..

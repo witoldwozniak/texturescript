@@ -4,14 +4,16 @@ import { Effect, Layer } from "effect"
 import { Command } from "effect/cli"
 import pkg from "../../package.json" with { type: "json" }
 import * as Jar from "../services/jar.ts"
+import * as Png from "../services/png.ts"
+import { gridCommand } from "./grid.ts"
 import { jarCommand } from "./jar.ts"
 
 export const root = Command.make("texturescript").pipe(
   Command.withDescription("Author Minecraft textures as text and judge them in 3D."),
-  Command.withSubcommands([jarCommand]),
+  Command.withSubcommands([gridCommand, jarCommand]),
 )
 
-const services = Jar.layer.pipe(Layer.provideMerge(BunServices.layer))
+const services = Layer.mergeAll(Jar.layer, Png.layer).pipe(Layer.provideMerge(BunServices.layer))
 
 if (import.meta.main) {
   Command.run(root, { version: pkg.version }).pipe(Effect.provide(services), BunRuntime.runMain)
