@@ -16,9 +16,16 @@ const failed = (e: unknown) => {
   const text = e instanceof Error ? e.message : String(e)
   return new BrowserFailed({
     reason: /Executable doesn't exist|install/i.test(text)
-      ? "Chromium for screenshots is not installed; run once: bunx playwright-core install chromium"
+      ? "no Chromium for screenshots: install Google Chrome, set TEXTURESCRIPT_CHROMIUM to a Chromium executable, or run once: npx playwright-core install chromium"
       : text.split("\n")[0]!,
   })
+}
+
+/** TEXTURESCRIPT_CHROMIUM if set; else Playwright's own Chromium, then an installed Chrome. */
+const launch = () => {
+  const path = process.env.TEXTURESCRIPT_CHROMIUM
+  if (path) return chromium.launch({ executablePath: path })
+  return chromium.launch().catch((e: unknown) => chromium.launch({ channel: "chrome" }).catch(() => Promise.reject(e)))
 }
 
 export class Browser extends Context.Service<Browser, {
@@ -30,7 +37,7 @@ export const layer = Layer.effect(
   Browser,
   Effect.gen(function* () {
     const browser = yield* Effect.acquireRelease(
-      Effect.tryPromise({ try: () => chromium.launch(), catch: failed }),
+      Effect.tryPromise({ try: launch, catch: failed }),
       (b) => Effect.promise(() => b.close()),
     )
     return Browser.of({
