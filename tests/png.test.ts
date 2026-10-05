@@ -32,3 +32,22 @@ describe("decodePng", () => {
     expect(decodePng(png).data).toEqual(new Uint8Array(rgba([10, 20, 30, 0], [40, 50, 60, 255])))
   })
 })
+
+describe("PngFiles", () => {
+  test("writes into new folders and reads back", async () => {
+    const { BunServices } = await import("@effect/platform-bun")
+    const { Effect, Layer } = await import("effect")
+    const { PngFiles, layer } = await import("../src/services/png.ts")
+    const { tempDir } = await import("./helpers.ts")
+    const file = `${tempDir()}/a/b/c.png`
+    const image = { width: 1, height: 1, data: new Uint8Array([1, 2, 3, 4]) }
+    const back = await Effect.runPromise(
+      Effect.gen(function* () {
+        const png = yield* PngFiles
+        yield* png.write(file, image)
+        return yield* png.read(file)
+      }).pipe(Effect.provide(layer.pipe(Layer.provideMerge(BunServices.layer)))),
+    )
+    expect(back).toEqual(image)
+  })
+})

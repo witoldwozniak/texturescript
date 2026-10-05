@@ -1,12 +1,6 @@
 // PNG decoding to 8-bit RGBA, whatever the file's colour type and bit depth.
 import { convertIndexedToRgb, decode, encode, type DecodedPng } from "fast-png"
-
-export interface Rgba {
-  readonly width: number
-  readonly height: number
-  /** width × height × 4 bytes, rows top to bottom. */
-  readonly data: Uint8Array
-}
+import type { Raster } from "./raster.ts"
 
 /** Samples of one row, unpacked from 1, 2 or 4 bits per sample when needed. */
 function samples(png: DecodedPng): Uint8Array | Uint16Array {
@@ -25,7 +19,7 @@ function samples(png: DecodedPng): Uint8Array | Uint16Array {
   return out
 }
 
-export function decodePng(bytes: Uint8Array): Rgba {
+export function decodePng(bytes: Uint8Array): Raster {
   const png = decode(bytes)
   const { width, height, channels, depth } = png
   const out = new Uint8Array(width * height * 4)
@@ -55,6 +49,6 @@ export function decodePng(bytes: Uint8Array): Rgba {
   return { width, height, data: out }
 }
 
-export function encodePng(image: Rgba): Uint8Array {
+export function encodePng(image: Raster): Uint8Array {
   return encode({ width: image.width, height: image.height, data: image.data, depth: 8, channels: 4 })
 }

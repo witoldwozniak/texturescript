@@ -5,19 +5,20 @@ import { zipSync } from "fflate"
 import { mkdtempSync } from "node:fs"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
-import { encodePng, type Rgba } from "../src/core/png.ts"
+import { encodePng } from "../src/core/png.ts"
+import type { Raster } from "../src/core/raster.ts"
 import { GameJar, makeGameJar, type Environment } from "../src/services/jar.ts"
 
 export const tempDir = () => mkdtempSync(join(tmpdir(), "texturescript-test-"))
 
 /** A deterministic 16×16 authored texture; `seed` changes every pixel. */
-export function texture(seed: number, width = 16, height = 16): Rgba {
+export function texture(seed: number, width = 16, height = 16): Raster {
   const data = new Uint8Array(width * height * 4)
   for (let i = 0; i < width * height; i++) data.set([(i * 37 + seed * 11) & 255, (i * 91 + seed * 7) & 255, (i * 13 + seed) & 255, i % 5 ? 255 : 0], i * 4)
   return { width, height, data }
 }
 
-export function upscale(image: Rgba, k: number): Rgba {
+export function upscale(image: Raster, k: number): Raster {
   const out = texture(0, image.width * k, image.height * k)
   for (let y = 0; y < out.height; y++)
     for (let x = 0; x < out.width; x++)

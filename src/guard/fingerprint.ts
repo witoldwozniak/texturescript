@@ -1,6 +1,7 @@
 // Fingerprints that identify a game file even after re-encoding or upscaling.
 import { createHash } from "node:crypto"
-import { decodePng, type Rgba } from "../core/png.ts"
+import { decodePng } from "../core/png.ts"
+import { crop, type Raster } from "../core/raster.ts"
 
 const sha1 = (...parts: Array<string | Uint8Array>) => {
   const h = createHash("sha1")
@@ -8,16 +9,10 @@ const sha1 = (...parts: Array<string | Uint8Array>) => {
   return h.digest("hex")
 }
 
-export const pixelHash = (image: Rgba) => sha1(`${image.width}x${image.height}:`, image.data)
-
-export function crop(image: Rgba, width: number, height: number): Rgba {
-  const data = new Uint8Array(width * height * 4)
-  for (let y = 0; y < height; y++) data.set(image.data.subarray(y * image.width * 4, (y * image.width + width) * 4), y * width * 4)
-  return { width, height, data }
-}
+export const pixelHash = (image: Raster) => sha1(`${image.width}x${image.height}:`, image.data)
 
 /** The image shrunk by `k` if it is a nearest-neighbour upscale by `k`, else undefined. */
-export function downscale(image: Rgba, k: number): Rgba | undefined {
+export function downscale(image: Raster, k: number): Raster | undefined {
   const { width, height, data } = image
   if (width % k || height % k) return undefined
   const w = width / k
@@ -35,7 +30,7 @@ export function downscale(image: Rgba, k: number): Rgba | undefined {
 
 /** Hashes of a PNG and of every integer nearest-neighbour downscale of it. */
 export function imageCandidates(bytes: Uint8Array): string[] {
-  let image: Rgba
+  let image: Raster
   try {
     image = decodePng(bytes)
   } catch {
@@ -53,7 +48,7 @@ export function imageCandidates(bytes: Uint8Array): string[] {
 export function vanillaImageHashes(bytes: Uint8Array): string[] {
   const image = decodePng(bytes)
   const out = [pixelHash(image)]
-  if (image.height > image.width && image.height % image.width === 0) out.push(pixelHash(crop(image, image.width, image.width)))
+  if (image.height > image.width && image.height % image.width === 0) out.push(pixelHash(crop(image, 0, 0, image.width, image.width)))
   return out
 }
 

@@ -4,7 +4,7 @@ import { mkdirSync, writeFileSync } from "node:fs"
 import { join, resolve } from "node:path"
 import { encodePng } from "../src/core/png.ts"
 import { buildIndex, match } from "../src/guard/check.ts"
-import { crop } from "../src/guard/fingerprint.ts"
+import { crop } from "../src/core/raster.ts"
 import { fakeJar, model, tempDir, texture, upscale } from "./helpers.ts"
 
 const index = buildIndex(unzipSync(fakeJar()))
@@ -18,7 +18,7 @@ describe("match", () => {
   })
 
   test("finds the first frame of an animated texture", () => {
-    const frame = crop(texture(2, 16, 64), 16, 16)
+    const frame = crop(texture(2, 16, 64), 0, 0, 16, 16)
     expect(match("a.png", encodePng(upscale(frame, 4)), index)).toBe("assets/minecraft/textures/block/test_flow.png")
   })
 
