@@ -1,0 +1,21 @@
+{
+  "name": "texturescript",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Author Minecraft textures as text and judge them in 3D without launching the game",
+  "license": "Apache-2.0",
+  "type": "module",
+  "scripts": {
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@effect/platform-bun": "4.0.1",
+    "effect": "4.0.1",
+    "fast-png": "^8.0.0",
+    "fflate": "^0.8.3"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2",
+    "typescript": "^7.0.2"
+  }
+}
