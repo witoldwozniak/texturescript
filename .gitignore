@@ -4,3 +4,7 @@ dist/
 
 # Renders, screenshots and anything read from the game jar stay local.
 out/
+
+# Vanilla examples fetched from your own jar by `texturescript fetch`.
+skill/examples/*/*.png
+skill/examples/*/*.txt

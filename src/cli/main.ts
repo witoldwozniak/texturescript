@@ -14,10 +14,12 @@ import { viewCommand } from "./view.ts"
 import { shootCommand } from "./shoot.ts"
 import { sheetCommand } from "./sheet.ts"
 import { diffCommand } from "./diff.ts"
+import { togridCommand } from "./togrid.ts"
+import { fetchCommand } from "./fetch.ts"
 
 export const root = Command.make("texturescript").pipe(
   Command.withDescription("Author Minecraft textures as text and judge them in 3D."),
-  Command.withSubcommands([paletteCommand, gridCommand, stagesCommand, lintCommand, viewCommand, shootCommand, sheetCommand, diffCommand, jarCommand]),
+  Command.withSubcommands([paletteCommand, gridCommand, stagesCommand, lintCommand, viewCommand, shootCommand, sheetCommand, diffCommand, togridCommand, fetchCommand, jarCommand]),
 )
 
 const services = Layer.mergeAll(Jar.layer, Png.layer).pipe(Layer.provideMerge(BunServices.layer))

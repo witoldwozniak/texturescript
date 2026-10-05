@@ -1,0 +1,38 @@
+# Vanilla textures the skill's examples are made from. Fetched from your client jar by
+# `texturescript fetch`; the PNG/txt/x16 files beside this manifest are generated
+# and gitignored. crop -> assets/minecraft/textures/block/, item -> textures/item/.
+crop beetroots_stage0
+crop beetroots_stage1
+crop beetroots_stage2
+crop beetroots_stage3
+crop carrots_stage0
+crop carrots_stage1
+crop carrots_stage2
+crop carrots_stage3
+crop pitcher_crop_bottom_stage_1
+crop pitcher_crop_bottom_stage_2
+crop pitcher_crop_bottom_stage_3
+crop pitcher_crop_bottom_stage_4
+crop pitcher_crop_top_stage_3
+crop pitcher_crop_top_stage_4
+crop potatoes_stage0
+crop potatoes_stage1
+crop potatoes_stage2
+crop potatoes_stage3
+crop sunflower_bottom
+crop sunflower_top
+crop wheat_stage0
+crop wheat_stage1
+crop wheat_stage2
+crop wheat_stage3
+crop wheat_stage4
+crop wheat_stage5
+crop wheat_stage7
+item beetroot
+item beetroot_seeds
+item carrot
+item pitcher_pod
+item potato
+item sweet_berries
+item wheat
+item wheat_seeds
