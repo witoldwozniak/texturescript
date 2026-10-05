@@ -1,0 +1,23 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>TextureScript</title>
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #78a7ff; font: 13px/1.4 system-ui, sans-serif; }
+  canvas { display: block; width: 100%; height: 100%; }
+  #hud { position: fixed; top: 8px; left: 8px; padding: 6px 10px; background: #000a; color: #fff; border-radius: 4px; white-space: pre; }
+  #hud b { color: #ffd75e; }
+  #err { position: fixed; bottom: 8px; left: 8px; right: 8px; color: #fff; background: #a00c; padding: 6px 10px; display: none; white-space: pre-wrap; }
+  .label { position: fixed; transform: translate(-50%, -100%); color: #fff; background: #0008; padding: 1px 6px; border-radius: 3px; pointer-events: none; white-space: nowrap; }
+  #ready { position: fixed; right: 0; bottom: 0; width: 1px; height: 1px; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="hud"></div>
+<div id="err"></div>
+<div id="labels"></div>
+<script type="module" src="./main.ts"></script>
+</body>
+</html>

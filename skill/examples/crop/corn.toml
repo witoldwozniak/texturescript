@@ -1,0 +1,27 @@
+# The corn example in 3D: texturescript view skill/examples/crop/corn.toml
+# Saving any grid, palette or map updates the view; no need to run `stages` first.
+camera = { yaw = 30, pitch = 22, distance = 7 }
+floor = "minecraft:grass_block"
+ground = "minecraft:farmland[moisture=7]"
+
+[[plot]]
+label = "corn stages 0-7"
+stages = "corn.stages"
+at = [0, 0]
+
+[[plot]]
+label = "corn field"
+stages = "corn.stages"
+ages = [7, 7, 7]
+at = [2, 2]
+
+[[plot]]
+label = "wheat (vanilla)"
+block = "minecraft:wheat[age=7]"
+at = [6, 2]
+
+[[plot]]
+label = "sunflower (vanilla)"
+block = "minecraft:sunflower[half=lower]"
+ground = "minecraft:grass_block"
+at = [7, 3]
