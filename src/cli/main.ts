@@ -16,11 +16,12 @@ import { sheetCommand } from "./sheet.ts"
 import { diffCommand } from "./diff.ts"
 import { togridCommand } from "./togrid.ts"
 import { fetchCommand } from "./fetch.ts"
+import { mcpCommand } from "./mcp.ts"
 import { skillCommand } from "./skill.ts"
 
 export const root = Command.make("texturescript").pipe(
   Command.withDescription("Author Minecraft textures as text and judge them in 3D."),
-  Command.withSubcommands([paletteCommand, gridCommand, stagesCommand, lintCommand, viewCommand, shootCommand, sheetCommand, diffCommand, togridCommand, fetchCommand, skillCommand, jarCommand]),
+  Command.withSubcommands([paletteCommand, gridCommand, stagesCommand, lintCommand, viewCommand, shootCommand, sheetCommand, diffCommand, togridCommand, fetchCommand, skillCommand, mcpCommand, jarCommand]),
 )
 
 const services = Layer.mergeAll(Jar.layer, Png.layer).pipe(Layer.provideMerge(BunServices.layer))

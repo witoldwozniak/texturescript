@@ -11,12 +11,83 @@ import * as flags from "./flags.ts"
 import { printJson, refuseSpecErrors } from "./report.ts"
 import { vanillaLayer } from "./view.ts"
 
-type Cam = readonly [yaw: number, pitch: number, distance: number]
+export type Cam = readonly [yaw: number, pitch: number, distance: number]
 
 const parseCam = (text: string): Cam | undefined => {
   const parts = text.split(",").map(Number)
   return parts.length === 3 && parts.every(Number.isFinite) ? (parts as unknown as Cam) : undefined
 }
+
+export interface ShootOptions {
+  readonly scene: string
+  readonly out: string
+  /** Cameras to shoot from; none means the scene's own. */
+  readonly cams: ReadonlyArray<Cam>
+  /** Variants to shoot; none means all of them. */
+  readonly variants: ReadonlyArray<string>
+  readonly width: number
+  readonly height: number
+  readonly split: boolean
+  readonly labels: boolean
+}
+
+/** Shoots a scene in one browser; writes one sheet, or one PNG per shot with `split`. */
+export const shootScene = (o: ShootOptions) =>
+  Effect.scoped(
+    Effect.gen(function* () {
+      const path = yield* Path.Path
+      const png = yield* PngFiles
+      const live = yield* serveScene(o.scene, { port: 0 })
+      const current = live.current()
+      if (current.type === "error") return yield* specError(current.message)
+      const { camera, variants: all, missing } = current.scene
+      const cams: ReadonlyArray<Cam> = o.cams.length ? o.cams : [[camera.yaw ?? 35, camera.pitch ?? 25, camera.distance ?? 7]]
+      const names = o.variants.length ? o.variants : Object.keys(all)
+      for (const v of names) if (!(v in all)) return yield* specError(`no variant ${JSON.stringify(v)}; the scene has ${Object.keys(all).join(", ")}`)
+
+      // One browser and one page for every shot: set the view in the page, then capture.
+      const page = yield* (yield* Browser.Browser).page(o.width, o.height)
+      const shots: Array<{ variant: string; cam: Cam; image: Raster }> = []
+      yield* Effect.tryPromise({
+        try: async () => {
+          await page.goto(`${live.url}?hud=0${o.labels ? "" : "&labels=0"}`)
+          await page.waitForSelector("#ready", { state: "attached", timeout: 60_000 })
+          for (const variant of names)
+            for (const cam of cams) {
+              await page.evaluate(
+                ([v, c]) =>
+                  new Promise<void>((done) => {
+                    const ts = (window as unknown as { textureScript: { setVariant(v: string): void; setCamera(y: number, p: number, d: number): void } }).textureScript
+                    ts.setVariant(v)
+                    ts.setCamera(c[0], c[1], c[2])
+                    requestAnimationFrame(() => done())
+                  }),
+                [variant, cam] as const,
+              )
+              shots.push({ variant, cam, image: decodePng(new Uint8Array(await page.screenshot())) })
+            }
+        },
+        catch: (e) => new Browser.BrowserFailed({ reason: e instanceof Error ? e.message.split("\n")[0]! : String(e) }),
+      })
+
+      const caption = (s: (typeof shots)[number]) => `${s.variant} · cam ${s.cam.join(",")}`
+      const written: Array<{ file: string; image: Raster }> = []
+      if (o.split || shots.length === 1) {
+        for (const [i, s] of shots.entries()) {
+          const { dir, name, ext } = path.parse(o.out)
+          const file = shots.length === 1 ? o.out : path.join(dir, `${name}-${s.variant}-${i % cams.length}${ext || ".png"}`)
+          yield* png.write(file, s.image)
+          written.push({ file, image: s.image })
+        }
+      } else {
+        const laid = contactSheet(shots.map((s) => ({ name: caption(s), image: s.image })), { scale: 1, cols: cams.length, background: [40, 40, 40, 255], captionLength: 200 })
+        const image = yield* Browser.drawCaptions(laid.image, laid.captions)
+        yield* png.write(o.out, image)
+        written.push({ file: o.out, image })
+      }
+      return { written, shots: shots.map((s) => ({ variant: s.variant, cam: s.cam })), variants: names.length, cams: cams.length, missing }
+    }),
+  )
 
 export const shootCommand = Command.make(
   "shoot",
@@ -33,73 +104,25 @@ export const shootCommand = Command.make(
     json: flags.json,
   },
   (o) =>
-    Effect.scoped(
-      Effect.gen(function* () {
-        const path = yield* Path.Path
-        const png = yield* PngFiles
-        const size = /^(\d+)x(\d+)$/.exec(o.size)
-        if (!size) return yield* specError(`--size ${o.size}: expected WIDTHxHEIGHT, e.g. 960x540`)
-        const [width, height] = [Number(size[1]), Number(size[2])]
-        const cams: Cam[] = []
-        for (const c of o.cam) {
-          const cam = parseCam(c)
-          if (!cam) return yield* specError(`--cam ${c}: expected YAW,PITCH,DISTANCE, e.g. 30,22,7`)
-          cams.push(cam)
-        }
-
-        const live = yield* serveScene(o.scene, { port: 0 })
-        const current = live.current()
-        if (current.type === "error") return yield* specError(current.message)
-        const { camera, variants: all, missing } = current.scene
-        if (cams.length === 0) cams.push([camera.yaw ?? 35, camera.pitch ?? 25, camera.distance ?? 7])
-        const names = o.variant.length ? o.variant : Object.keys(all)
-        for (const v of names) if (!(v in all)) return yield* specError(`no variant ${JSON.stringify(v)}; the scene has ${Object.keys(all).join(", ")}`)
-        if (missing.length && !o.json) yield* Console.error(`missing: ${missing.join(", ")}`)
-
-        // One browser and one page for every shot: set the view in the page, then capture.
-        const page = yield* (yield* Browser.Browser).page(width, height)
-        const shots: Array<{ variant: string; cam: Cam; image: Raster }> = []
-        yield* Effect.tryPromise({
-          try: async () => {
-            await page.goto(`${live.url}?hud=0${o.noLabels ? "&labels=0" : ""}`)
-            await page.waitForSelector("#ready", { state: "attached", timeout: 60_000 })
-            for (const variant of names)
-              for (const cam of cams) {
-                await page.evaluate(
-                  ([v, c]) =>
-                    new Promise<void>((done) => {
-                      const ts = (window as unknown as { textureScript: { setVariant(v: string): void; setCamera(y: number, p: number, d: number): void } }).textureScript
-                      ts.setVariant(v)
-                      ts.setCamera(c[0], c[1], c[2])
-                      requestAnimationFrame(() => done())
-                    }),
-                  [variant, cam] as const,
-                )
-                shots.push({ variant, cam, image: decodePng(new Uint8Array(await page.screenshot())) })
-              }
-          },
-          catch: (e) => new Browser.BrowserFailed({ reason: e instanceof Error ? e.message.split("\n")[0]! : String(e) }),
-        })
-
-        const caption = (s: (typeof shots)[number]) => `${s.variant} · cam ${s.cam.join(",")}`
-        const files: string[] = []
-        if (o.split || shots.length === 1) {
-          for (const [i, s] of shots.entries()) {
-            const { dir, name, ext } = path.parse(o.out)
-            const file = shots.length === 1 ? o.out : path.join(dir, `${name}-${s.variant}-${i % cams.length}${ext || ".png"}`)
-            yield* png.write(file, s.image)
-            files.push(file)
-          }
-        } else {
-          const laid = contactSheet(shots.map((s) => ({ name: caption(s), image: s.image })), { scale: 1, cols: cams.length, background: [40, 40, 40, 255], captionLength: 200 })
-          yield* png.write(o.out, yield* Browser.drawCaptions(laid.image, laid.captions))
-          files.push(o.out)
-        }
-        yield* o.json
-          ? printJson({ files, shots: shots.map((s) => ({ variant: s.variant, cam: s.cam })), missing })
-          : Console.log(`${files.join(", ")}: ${shots.length} shot${shots.length === 1 ? "" : "s"} (${names.length} variant${names.length === 1 ? "" : "s"} × ${cams.length} camera${cams.length === 1 ? "" : "s"})`)
-      }),
-    ).pipe(
+    Effect.gen(function* () {
+      const size = /^(\d+)x(\d+)$/.exec(o.size)
+      if (!size) return yield* specError(`--size ${o.size}: expected WIDTHxHEIGHT, e.g. 960x540`)
+      const cams: Cam[] = []
+      for (const c of o.cam) {
+        const cam = parseCam(c)
+        if (!cam) return yield* specError(`--cam ${c}: expected YAW,PITCH,DISTANCE, e.g. 30,22,7`)
+        cams.push(cam)
+      }
+      const r = yield* shootScene({
+        scene: o.scene, out: o.out, cams, variants: o.variant,
+        width: Number(size[1]), height: Number(size[2]), split: o.split, labels: !o.noLabels,
+      })
+      const files = r.written.map((w) => w.file)
+      if (r.missing.length && !o.json) yield* Console.error(`missing: ${r.missing.join(", ")}`)
+      yield* o.json
+        ? printJson({ files, shots: r.shots, missing: r.missing })
+        : Console.log(`${files.join(", ")}: ${r.shots.length} shot${r.shots.length === 1 ? "" : "s"} (${r.variants} variant${r.variants === 1 ? "" : "s"} × ${r.cams} camera${r.cams === 1 ? "" : "s"})`)
+    }).pipe(
       Effect.provide(Browser.layer),
       Effect.provide(vanillaLayer(o.jar, o.noJar)),
       Effect.catchTag("BrowserFailed", (e) => {
