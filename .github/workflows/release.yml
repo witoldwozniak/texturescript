@@ -10,9 +10,13 @@ permissions:
 jobs:
   binaries:
     runs-on: ubuntu-latest
+    # The first v0.1.0 attempt hung for 15 minutes before it was cancelled; a run takes about one.
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
       - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version-file: .bun-version
       - run: bun install --frozen-lockfile
       - run: bun run typecheck
       - run: bunx playwright-core install --with-deps chromium
