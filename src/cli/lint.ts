@@ -19,6 +19,24 @@ export const lintPalette = (file: string) =>
 export const findingLines = (findings: ReadonlyArray<Finding>) =>
   findings.map((f) => `${f.level.padEnd(4)} ${f.rule.padEnd(9)} ${f.message}`)
 
+export interface LintFileOptions {
+  readonly texture: string
+  readonly kind: NonNullable<LintOptions["kind"]>
+  readonly lower?: string | undefined
+  readonly palette?: string | undefined
+}
+
+/** Lints a PNG file, reading the lower half and the family palette when given. */
+export const lintFile = Effect.fn("lintFile")(function* (o: LintFileOptions) {
+  const png = yield* PngFiles
+  const options: LintOptions = {
+    kind: o.kind,
+    ...(o.lower !== undefined && { lower: yield* png.read(o.lower) }),
+    ...(o.palette !== undefined && { palette: yield* lintPalette(o.palette) }),
+  }
+  return lint(yield* png.read(o.texture), options)
+})
+
 export const lintCommand = Command.make(
   "lint",
   {
@@ -30,13 +48,7 @@ export const lintCommand = Command.make(
   },
   ({ texture, lower, kind, palette, json }) =>
     Effect.gen(function* () {
-      const png = yield* PngFiles
-      const options: LintOptions = {
-        kind,
-        ...(Option.isSome(lower) && { lower: yield* png.read(lower.value) }),
-        ...(Option.isSome(palette) && { palette: yield* lintPalette(palette.value) }),
-      }
-      const findings = lint(yield* png.read(texture), options)
+      const findings = yield* lintFile({ texture, kind, lower: Option.getOrUndefined(lower), palette: Option.getOrUndefined(palette) })
       const fails = failures(findings)
       const warns = findings.filter((f) => f.level === "WARN").length
       if (fails) process.exitCode = 1

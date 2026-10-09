@@ -83,6 +83,7 @@ orbits and zooms.
 | `diff RENDERED.png TARGET.png` | counts and marks the pixels that differ |
 | `togrid PNG OUT.grid` | turns a PNG into an editable grid |
 | `skill [OUT_DIR]` | shows or exports the authoring skill |
+| `mcp` | serves `render`, `lint`, `shoot` and the skill to agents over MCP |
 | `fetch` | extracts the skill's vanilla references from your jar (see above) |
 | `jar` | prints the client jar in use |
 
@@ -142,6 +143,31 @@ and a loop of draw, render, lint and screenshot. `texturescript skill DIR` expor
 Then `texturescript fetch --skill DIR` adds the vanilla reference grids from your
 own jar.
 
+### MCP
+
+`texturescript mcp` is an MCP server on stdio, for agents that work without a shell.
+It has three tools, which return their pictures as images the agent can look at:
+
+| tool | does |
+|---|---|
+| `render` | renders a grid like `grid`, and returns the ×16 preview |
+| `lint` | lints a PNG like `lint`; the findings come back as text and as data |
+| `shoot` | screenshots a scene like `shoot`, and returns the sheet; cameras are `{ yaw, pitch, distance }` |
+
+The skill's files are resources, starting at `texturescript://skill/SKILL.md`.
+Relative paths are relative to the directory the server starts in, and `--jar` and
+`--no-jar` choose the vanilla blocks for `shoot`. To add it to Claude Code:
+
+```sh
+claude mcp add texturescript -- texturescript mcp
+```
+
+Other clients take the same command:
+
+```json
+{ "mcpServers": { "texturescript": { "command": "texturescript", "args": ["mcp"] } } }
+```
+
 ## Development
 
 ```sh
@@ -153,7 +179,7 @@ bun src/cli/main.ts --help
 
 `src/core` is pure and synchronous, and also runs in the browser. `src/services`
 holds the Effect services for files, the jar, the live server and the browser.
-`src/cli` holds the commands, and `src/viewer` the 3D page.
+`src/cli` holds the commands and the MCP server, and `src/viewer` the 3D page.
 
 The pre-commit hook runs `scripts/check-no-vanilla.ts`, which compares staged PNG
 and JSON files against your Minecraft client jar and refuses copies, re-encodes,

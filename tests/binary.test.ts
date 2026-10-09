@@ -5,7 +5,7 @@ import { homedir } from "node:os"
 import { join } from "node:path"
 import { chromium } from "playwright-core"
 import { decodePng } from "../src/core/png.ts"
-import { tempDir } from "./helpers.ts"
+import { mcpClient, tempDir } from "./helpers.ts"
 
 const root = join(import.meta.dir, "..")
 const work = tempDir()
@@ -13,10 +13,12 @@ const bin = join(work, "texturescript")
 const home = join(work, "home")
 const hasChromium = existsSync(chromium.executablePath())
 
+const env = () => ({ PATH: process.env.PATH ?? "", HOME: home, PLAYWRIGHT_BROWSERS_PATH: process.env.PLAYWRIGHT_BROWSERS_PATH ?? join(homedir(), ".cache/ms-playwright") })
+
 const run = (cwd: string, ...args: string[]) => {
   const r = Bun.spawnSync([bin, ...args], {
     cwd,
-    env: { PATH: process.env.PATH ?? "", HOME: home, PLAYWRIGHT_BROWSERS_PATH: process.env.PLAYWRIGHT_BROWSERS_PATH ?? join(homedir(), ".cache/ms-playwright") },
+    env: env(),
   })
   return { code: r.exitCode, out: r.stdout.toString(), err: r.stderr.toString() }
 }
@@ -44,3 +46,14 @@ test.skipIf(!hasChromium)("shoots the corn scene with the built-in viewer", () =
   expect(r.code).toBe(0)
   expect(decodePng(readFileSync(join(crop, "shot.png"))).width).toBe(320)
 }, 60_000)
+
+test("serves the tools and the skill over MCP", async () => {
+  const client = await mcpClient([bin, "mcp"], { cwd: work, env: env() })
+  try {
+    expect((await client.request("tools/list")).tools.map((t: { name: string }) => t.name)).toEqual(["render", "lint", "shoot"])
+    const { contents } = await client.request("resources/read", { uri: "texturescript://skill/SKILL.md" })
+    expect(contents[0].text).toContain("# TextureScript")
+  } finally {
+    await client.close()
+  }
+})

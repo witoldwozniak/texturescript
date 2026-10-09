@@ -34,6 +34,9 @@ Run `texturescript <tool>`; `texturescript <tool> --help` lists every flag. Rela
 in `.stages` and scene files are relative to that file. Most tools take `--json` for machine-readable output.
 `texturescript skill OUT_DIR` exports this skill, without fetched textures, to a writable
 directory; pass that directory to `fetch --skill`.
+If you have the `texturescript` MCP tools instead of a shell, `render` (the `grid` command), `lint` and `shoot`
+take the same inputs as the commands below and return their pictures to you directly;
+look at them.
 
 | tool | what | when |
 |---|---|---|
