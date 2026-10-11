@@ -8,6 +8,8 @@ and opens a live 3D view that draws the result the way the game does: lit, cut o
 and planted next to vanilla blocks for scale. It reloads when you save, so a person
 or an agent can iterate on one texture in seconds.
 
+**Docs:** https://witoldwozniak.github.io/texturescript/ (tutorials, how-to guides, reference and explanation; the source is in [`docs/`](docs/)).
+
 **Status:** early. Built with Bun, TypeScript, Effect and
 [deepslate](https://github.com/misode/deepslate).
 
@@ -186,6 +188,19 @@ and JSON files against your Minecraft client jar and refuses copies, re-encodes,
 nearest-neighbour upscales and model or blockstate JSON taken from the game. Run it
 with `--tree` or `--history` to check the whole checkout or every past commit. It
 needs a local jar; without one it skips.
+
+### Docs
+
+The documentation is a [Docus](https://docus.dev) site in `docs/`, organised after
+[Diátaxis](https://diataxis.fr). To work on it:
+
+```sh
+cd docs
+bun install
+bun run dev        # http://localhost:3000
+```
+
+It deploys to GitHub Pages from `main` (`.github/workflows/docs.yml`).
 
 ## License
 
